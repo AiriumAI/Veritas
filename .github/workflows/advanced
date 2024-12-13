@@ -1,0 +1,107 @@
+// Advanced AI Logic with contextual learning and dynamic interaction
+let conversationContext = [];
+
+const responses = {
+    greeting: ["Hello! How can I assist you with truth-validation today?", "Hi there! Need help with anything related to truth?"],
+    truth: ["Truth is at the core of Veritas. Ask me about truth-validation workflows!", "Truth transcends boundaries, just like Veritas."],
+    tokenomics: ["The Veritas Token drives engagement in truth-validation. Would you like details on staking?", "VER tokens enable governance and utility within the ecosystem."],
+    roadmap: ["The next phase includes expanding validator nodes and launching VeritasAI advanced features.", "Check out our Q2 2024 milestones on the roadmap."],
+    ai: ["VeritasAI uses advanced NLP and machine learning to validate truth effectively.", "Our AI is constantly evolving with user input to improve accuracy."],
+    features: ["Key features include immutable blockchain records, decentralized nodes, and AI-assisted governance.", "Veritas offers real-time validation, staking rewards, and more."],
+    contextAware: ["Based on your previous question, it seems you're interested in {topic}. Here's more information on that: ..."],
+    default: ["I'm here to help. Can you rephrase your question?", "Interesting. Let's explore this further.", "Hmm, I need more details to assist you better."],
+    farewell: ["Goodbye! Reach out anytime.", "Take care! Keep exploring the truth with Veritas."]
+};
+
+function generateAIResponse(input) {
+    const keywords = input.toLowerCase().split(" ");
+    let response;
+
+    if (keywords.includes("hello") || keywords.includes("hi")) {
+        response = responses.greeting[Math.floor(Math.random() * responses.greeting.length)];
+    } else if (keywords.includes("truth")) {
+        response = responses.truth[Math.floor(Math.random() * responses.truth.length)];
+    } else if (keywords.includes("token") || keywords.includes("tokenomics")) {
+        response = responses.tokenomics[Math.floor(Math.random() * responses.tokenomics.length)];
+    } else if (keywords.includes("roadmap")) {
+        response = responses.roadmap[Math.floor(Math.random() * responses.roadmap.length)];
+    } else if (keywords.includes("ai")) {
+        response = responses.ai[Math.floor(Math.random() * responses.ai.length)];
+    } else if (keywords.includes("features")) {
+        response = responses.features[Math.floor(Math.random() * responses.features.length)];
+    } else if (keywords.includes("bye") || keywords.includes("goodbye")) {
+        response = responses.farewell[Math.floor(Math.random() * responses.farewell.length)];
+    } else {
+        if (conversationContext.length > 0) {
+            response = responses.contextAware[0].replace("{topic}", conversationContext[conversationContext.length - 1]);
+        } else {
+            response = responses.default[Math.floor(Math.random() * responses.default.length)];
+        }
+    }
+
+    conversationContext.push(keywords.join(" "));
+    if (conversationContext.length > 5) conversationContext.shift();
+    return response;
+}
+
+const chatInput = document.getElementById('chatInput');
+const chatMessages = document.getElementById('chatMessages');
+
+chatInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        const userMessage = chatInput.value;
+        const userBubble = document.createElement('div');
+        userBubble.className = 'user-message';
+        userBubble.textContent = userMessage;
+        chatMessages.appendChild(userBubble);
+        chatInput.value = '';
+
+        // Particle burst effect
+        triggerParticleBurst();
+
+        setTimeout(() => {
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'ai-message';
+            aiMessage.textContent = generateAIResponse(userMessage);
+            chatMessages.appendChild(aiMessage);
+        }, 1000);
+    }
+});
+
+// Real-Time Particle Burst on AI Interaction
+function triggerParticleBurst() {
+    for (let i = 0; i < 20; i++) {
+        particles.push(createParticle(window.innerWidth / 2, window.innerHeight / 2));
+    }
+    if (particles.length > 400) particles.splice(0, 20);
+}
+
+// Speech-to-Text Integration
+if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    recognition.onresult = (event) => {
+        const userMessage = event.results[0][0].transcript;
+        chatInput.value = userMessage;
+        const userBubble = document.createElement('div');
+        userBubble.className = 'user-message';
+        userBubble.textContent = userMessage;
+        chatMessages.appendChild(userBubble);
+
+        // Particle burst effect
+        triggerParticleBurst();
+
+        setTimeout(() => {
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'ai-message';
+            aiMessage.textContent = generateAIResponse(userMessage);
+            chatMessages.appendChild(aiMessage);
+        }, 1000);
+    };
+
+    document.getElementById('startVoice').addEventListener('click', () => {
+        recognition.start();
+    });
+}
